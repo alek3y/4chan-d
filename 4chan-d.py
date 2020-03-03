@@ -16,8 +16,11 @@ ARGUMENTS = {
 	# Option: [Description, Obligatory]
 	"-u": ["4chan thread url", True],
 	"-o": ["output parent directory", False],
-	"-f": ["if enabled the file names will be the uploaded ones", False]
+	"-f": ["if enabled the file names will be the uploaded ones", False],
 }
+SINGLE_ARGUMENTS = [
+	"-f",
+]
 USAGE = "[OPTIONS]"
 
 # Constants
@@ -40,25 +43,31 @@ def usage():
 for arg in ARGUMENTS:
 	if arg not in sys.argv and ARGUMENTS[arg][1]:
 		usage()
-	elif arg in sys.argv and arg != "-f":
+	elif arg in sys.argv and arg not in SINGLE_ARGUMENTS:
 		if sys.argv[sys.argv.index(arg)+1][0] == "-":
 			usage()
 
 # Setup arguments
 arguments_dict = {}
 for arg in ARGUMENTS:
-	if arg in sys.argv and arg != "-f":
+	if arg in sys.argv and arg not in SINGLE_ARGUMENTS:
 		arguments_dict[arg] = sys.argv[sys.argv.index(arg)+1]
 
-# Dynamic management of arguments (based on program)
+## Main code ##
+
+# Set up data from arguments
 download_url = arguments_dict["-u"]
 output_dir = "." if "-o" not in arguments_dict else arguments_dict["-o"]
 original_name = "-f" in sys.argv
 
+# Set up data from url
 server_dir = download_url.replace("https://", "").replace("http://", "").split("#p")[0].split("/")[1:]
 thread_number = download_url.split("/thread/")[1].split("#p")[0]
 
-# Change to working directory
+# Get the json of the thread
+thread_json = requests.get(f"{JSON_SERVER}/{server_dir[0]}/thread/{server_dir[2]}.json", stream=True).content
+
+# Change to working directory where the file will be downloaded
 os.makedirs(f"{output_dir}/{server_dir[0]}/{server_dir[2]}", exist_ok=True)
 os.chdir(f"{output_dir}/{server_dir[0]}/{server_dir[2]}")
 files_in_folder = sorted(os.listdir())
