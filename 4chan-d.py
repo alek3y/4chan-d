@@ -61,6 +61,7 @@ thread_number = download_url.split("/thread/")[1].split("#p")[0]
 # Change to working directory
 os.makedirs(f"{output_dir}/{server_dir[0]}/{server_dir[2]}", exist_ok=True)
 os.chdir(f"{output_dir}/{server_dir[0]}/{server_dir[2]}")
+files_in_folder = sorted(os.listdir())
 
 # Download the .json
 thread_json = requests.get(f"{JSON_SERVER}/{server_dir[0]}/thread/{server_dir[2]}.json", stream=True).content
@@ -81,15 +82,20 @@ for post in thread["posts"]:
 
 # Download images using the .json
 print("Downloading..")
+current_image = 0		# Counter for progress
 for post in thread["posts"]:
 
 	# Check if post has file and if so download it
 	if "filename" in post:
 		output_name = f"{post['tim']}{post['ext']}" if not original_name else f"{post['filename']}{post['ext']}"		# Evaluate file name
 
-		image = requests.get(f"{FILE_SERVER}/{server_dir[0]}/{post['tim']}{post['ext']}")		# Get the image with requests
-		open(output_name, "wb").write(image.content)		# Save image
-		print(f"[{thread['posts'].index(post)}/{image_number}]", end="\r")		# Print progress
+		# Download only if not on folder
+		if output_name not in files_in_folder:
+			image = requests.get(f"{FILE_SERVER}/{server_dir[0]}/{post['tim']}{post['ext']}")		# Get the image with requests
+			open(output_name, "wb").write(image.content)		# Save image
+
+		current_image += 1
+		print(f"[{current_image}/{image_number}]", end="\r")		# Print progress
 
 print("Finished downloading!")
 print(f"The thread is located in {os.getcwd()}")
