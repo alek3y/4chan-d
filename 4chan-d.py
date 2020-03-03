@@ -47,6 +47,11 @@ for arg in ARGUMENTS:
 		if sys.argv[sys.argv.index(arg)+1][0] == "-":
 			usage()
 
+# Check if there are wrong arguments on sys.argv
+for arg in sys.argv:
+	if arg[0] == "-" and arg not in ARGUMENTS:
+		usage()
+
 # Setup arguments
 arguments_dict = {}
 for arg in ARGUMENTS:
