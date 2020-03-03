@@ -1,7 +1,6 @@
 # 4chan-d
 This tool allows you to download all the media files and json (which contains all the posts) from a 4chan thread.
 
-## Usage
 ```
 Usage: 4chan-d.py [OPTIONS]
     Download threads from 4chan.
